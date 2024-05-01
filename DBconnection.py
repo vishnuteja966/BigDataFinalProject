@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 from neo4j import GraphDatabase
 import yaml
+import os
 
 class Neo4jConnector:
     def __init__(self, config_file):
@@ -46,14 +47,15 @@ class DataProcessor:
     def __init__(self, config_file):
         self.config = self.load_config(config_file)
         self.spark = SparkSession.builder.appName("CSV to Neo4j").getOrCreate()
-        self.csv_path = self.config['csv_path']
 
     def load_config(self, config_file):
         with open(config_file, 'r') as f:
             return yaml.safe_load(f)
 
     def read_csv(self):
-        return self.spark.read.csv(self.csv_path, header=True, inferSchema=True)
+        current_path = os.getcwd()
+        csv_path = current_path + "\Arrest_Data_from_2020_to_Present.csv"
+        return self.spark.read.csv(csv_path, header=True, inferSchema=True)
 
     def transform_data(self, df):
         return df.selectExpr(
@@ -83,14 +85,21 @@ class DataProcessor:
         self.spark.stop()
 
 def main():
-    config_file = 'config.yaml'
-    processor = DataProcessor(config_file)
-    df = processor.read_csv()
-    nodes = processor.transform_data(df)
-    processor.stop_spark()
+    # Load configuration from YAML file
+    connector = Neo4jConnector('config.yaml')
+    processor = DataProcessor('config.yaml')
 
-    connector = Neo4jConnector(config_file)
+    # Read CSV data using Spark
+    df = processor.read_csv()
+
+    # Transform data into a format suitable for Neo4j
+    nodes = processor.transform_data(df)
+
+    # Call the function to insert data into Neo4j
     connector.insert_data(nodes)
+
+    # Close SparkSession
+    processor.stop_spark()
 
 if __name__ == "__main__":
     main()
