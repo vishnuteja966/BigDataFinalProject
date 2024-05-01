@@ -1,5 +1,6 @@
-csv_path: "C:\ADA Course\Python\BigDataProject\Arrest_Data_from_2020_to_Present.csv"
 neo4j:
   uri: "neo4j+s://f1df6c54.databases.neo4j.io"
   user: "neo4j"
   password: "d_yR_vZveKXYNxQmQ7teyOYyKmI7H9ydoZayTo200ww"
+
+csv_path: "C:\\ADA Course\\Python\\BigDataProject\\Arrest_Data_from_2020_to_Present.csv"
